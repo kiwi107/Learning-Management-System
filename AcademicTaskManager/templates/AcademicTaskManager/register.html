@@ -1,0 +1,109 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+
+{% if message %}
+<div class="alert alert-danger">{{ message }}</div>
+{% endif %}
+<div class="container">
+    <div class="d-flex justify-content-center align-items-center">
+
+        <div class="card mb-3" style="max-width: 1000px;">
+            <div class="row g-0">
+                <div class="col-md-4 my-auto">
+                    <img src="{% static 'AcademicTaskManager/pics/login.jpg' %}" class="img-fluid rounded-start"
+                        alt="...">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Register</h5>
+                        <br>
+
+                        <form action="{% url 'register' %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input class="form-control" autofocus type="text" name="username"
+                                    placeholder="Username">
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <input class="form-control" type="email" name="email" placeholder="Email Address">
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <input class="form-control" type="password" name="password" placeholder="Password">
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <input class="form-control" type="password" name="confirmation"
+                                    placeholder="Confirm Password">
+                            </div>
+                            <br>
+                            <select id="typeSelect" class="form-select" aria-label="Default select example">
+                                <option selected>Type</option>
+                                <option value="Student">Student</option>
+                                <option value="Teacher">Teacher</option>
+                            </select>
+                            <br>
+                            <input id="type" class="form-control" type="hidden" name="type">
+                          
+                            <div id="student">
+                                <input class="form-control" type="number" name="year" placeholder="year">
+                                <br>
+                                <select id="majorSelect" class="form-select" aria-label="Default select example">
+                                    <option selected>Major</option>
+                                    {% for major in majors %}
+                                    <option class="majors" value="{{ major.name }}">{{ major.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input id="major" class="form-control" type="hidden" name="major">
+                                <br>
+
+
+                            </div>
+                            <input class="btn btn-primary" type="submit" value="Register">
+                        </form>
+
+                        Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+   .card{
+         margin-top: 100px;
+         box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+   }
+
+</style>
+
+
+
+
+
+
+<script>
+    document.querySelector('#student').style.display = 'none';
+    document.querySelector('#typeSelect').addEventListener('change', () => {
+        if (document.querySelector('#typeSelect').value == 'Student') {
+            document.querySelector('#student').style.display = 'block';
+            document.querySelector('#type').value = 'Student';
+            document.querySelector('#majorSelect').addEventListener('change', () => {
+                document.querySelector('#major').value = document.querySelector('#majorSelect').value;
+            })
+        } else {
+            document.querySelector('#student').style.display = 'none';
+            document.querySelector('#type').value = 'Teacher';
+        }
+
+
+    })
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-8 col-xs-12">
+        <embed src="{{assignmentSubmission.file.url}}" type="application/pdf" width="100%" height="670px">
+    </div>
+    <div class="col-md-3 col-xs-12">
+        <h4 class="m-4">Total Marks: {{assignmentSubmission.assignment.marks}} </h4>
+        {% if assignmentSubmission.late %}
+        <h6 class="m-4 text-danger">Late Submission</h4>
+        {% endif %}
+        
+        <form action="{% url 'gradeAssignment' %}" method="post">
+
+            {% csrf_token %}
+            {% if request.user.type == "Student"%}
+
+            {% if assignmentSubmission.graded %}
+            <div class="input-group m-3">
+                <span class="input-group-text" id="basic-addon1">Awarded Mark</span>
+            <input type="number" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="mark"
+                value="{{assignmentSubmission.marks}}" disabled>
+            </div>
+            {% else %}
+            <div class="input-group m-3">
+                <span class="input-group-text" id="basic-addon1">Awarded Mark</span>
+            <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="mark"
+                value="{{assignmentSubmission.marks}}" disabled>
+            </div>
+            {% endif %}
+            {% else %}
+            {% if assignmentSubmission.graded %}
+            <div class="input-group m-3">
+                <span class="input-group-text" id="basic-addon1">Awarded Mark</span>
+            <input type="number" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="mark"
+                value="{{assignmentSubmission.marks}}" disabled>
+            </div>
+            {% else %}
+
+
+
+
+            <div class="input-group m-3">
+                <span class="input-group-text" id="basic-addon1">Awarded Mark</span>
+                <input type="number" class="form-control" aria-label="Username" aria-describedby="basic-addon1"
+                    name="mark">
+            </div>
+            <input type="hidden" name="id" value="{{assignmentSubmission.id}}">
+            <button class="btn btn-success m-3" type="submit">Submit</button>
+            {% endif %}
+            {% endif %}
+        </form>
+        <p><a href="{{ assignmentSubmission.file.url }}" download>Download PDF</a></p>
+
+
+
+
+    </div>
+</div>
+
+
+
+
+
+
+{% endblock %}

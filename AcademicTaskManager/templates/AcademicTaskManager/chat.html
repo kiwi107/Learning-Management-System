@@ -1,0 +1,145 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="row">
+    <div col="12">
+
+        <div id="chat1">
+            <div class="card-header d-flex justify-content-between p-3 bg-info text-white border-bottom-0">
+
+                <p class="mb-0 fw-bold mx-auto">{{receiver}}</p>
+
+            </div>
+
+            <div id="messages" class="infinite-container">
+                {% for message in chat %}
+
+                {% if message.sender.username == request.user.username %}
+
+                <div class="d-flex flex-row justify-content-end mb-4  infinite-item">
+                    <div class="p-3 me-3 border" style="border-radius: 15px; background-color: #fbfbfb;">
+                        <p class="small mb-0">{{message.content}}</p>
+                    </div>
+                    <img class="m-2" src="{% static 'AcademicTaskManager/pics/man1.png' %}" alt="avatar 1" style="width: 45px; height: 100%;">
+
+                </div>
+                {% else %}
+                <div class="d-flex flex-row justify-content-start mb-4 infinite-item">
+                    <img class="m-2" src="{% static 'AcademicTaskManager/pics/man2.png' %}" alt="avatar 1" style="width: 45px; height: 100%;">
+                    <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                        <p class="small mb-0">{{message.content}}</p>
+                    </div>
+                </div>
+
+
+                {% endif %}
+
+
+                {% endfor %}
+            </div>
+
+            <form id="chatForm">
+                <div class="row text-end">
+                    <div class="col-10">
+                        <input class="form-control" placeholder="Your Message" type="text" name="message">
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-primary" type="submit">Send</button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+<style>
+    #messages {
+        border: 1px solid black;
+        width: 100%;
+        /* Use 100% width to adapt to parent container */
+        max-height: 500px;
+        /* Set a maximum height to limit the container's size */
+        overflow-y: auto;
+        /* Enable vertical scrolling when content overflows */
+        overflow-x: hidden;
+    }
+</style>
+
+
+<script>
+
+    function scrollToBottom() {
+        var container = document.getElementById('messages');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Call scrollToBottom() after the page loads to initially scroll to the bottom
+    window.addEventListener('load', scrollToBottom);
+
+
+
+
+
+
+    roomname = "{{ roomname }}";
+    sender = "{{ request.user.username }}";
+    receiver = "{{ receiver }}";
+
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/'
+        + roomname
+        + '/'
+    );
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        if (data.sender == sender) {
+            document.querySelector("#messages").innerHTML += `
+                <div class="d-flex flex-row justify-content-end mb-4">
+                        <div class="p-3 me-3 border" style="border-radius: 15px; background-color: #fbfbfb;">
+                            <p class="small mb-0">${data.message}</p>
+                        </div>
+                        <img src="{% static 'AcademicTaskManager/pics/man1.png' %}" alt="avatar 1" style="width: 45px; height: 100%;">
+
+                    </div>`;
+
+
+        } else {
+            document.querySelector("#messages").innerHTML += `
+                <div class="d-flex flex-row justify-content-start mb-4">
+                        <img src="{% static 'AcademicTaskManager/pics/man2.png' %}" alt="avatar 1" style="width: 45px; height: 100%;">
+                        <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                            <p class="small mb-0">${data.message}</p>
+                        </div>
+                    </div>`;
+        }
+        scrollToBottom();
+
+
+
+    };
+
+    let form = document.querySelector("#chatForm");
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        let message = form.querySelector("input[name='message']").value
+
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'sender': sender,
+            'receiver': receiver,
+            'roomname': roomname
+        }));
+        form.reset()
+    });
+
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+{% block body %}
+<div class="container">
+
+
+    <h1>Create Quiz</h1>
+    <div class="row">
+        <div class="col-6">
+            <h4>{{quiz.title}}</h4>
+
+        </div>
+        <div class="col-6 text-end">
+            <button id="addQuestion" class="btn btn-success">Add Question</button>
+        </div>
+    </div>
+
+    <div id="question">
+
+    </div>
+    <br>
+    <br>
+
+
+    <div id="addedQuestion">
+        
+        <a class="btn btn-danger text-end" href="{% url 'classroomPage' id=quiz.classroom.id %}">Close Quiz</a>
+        
+    </div>
+</div>
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    document.querySelector("#addQuestion").addEventListener("click", () => {
+        document.querySelector("#question").innerHTML = `
+        <form id="addQuestionForm">
+            {% csrf_token %}
+            <textarea class="form-control" name="Question" placeholder="Question"></textarea>
+            <br>
+
+
+            <textarea class="form-control" name="A" placeholder="choice A"></textarea>
+            <br>
+            <textarea class="form-control" name="B" placeholder="choice B"></textarea>
+            <br>
+            <textarea class="form-control" name="C" placeholder="choice C"></textarea>
+            <br>
+            <textarea class="form-control" name="D" placeholder="choice D"></textarea>
+            <br>
+            <h4>Correct Answer</h4>
+            <select id="correctAnswerSelect" class="form-select" aria-label="Default select example">
+                <option selected>Open this select menu</option>
+                <option id="optionA"></option>
+                <option id="optionB"></option>
+                <option id="optionC"></option>
+                <option id="optionD"></option>
+
+            </select>
+            <input type="hidden" name="correctAnswer" value="">
+            <input type="hidden" name="quizID" value="{{quiz.id}}">
+            <input type="number" class="form-control" name="weight" placeholder="weight">
+            <input type="submit" class="btn btn-success" value="Add Question">
+
+        </form> 
+        `
+        const textareaA = document.querySelector("textarea[name='A']");
+        const textareaB = document.querySelector("textarea[name='B']");
+        const textareaC = document.querySelector("textarea[name='C']");
+        const textareaD = document.querySelector("textarea[name='D']");
+
+
+        const optionA = document.querySelector("#optionA");
+        const optionB = document.querySelector("#optionB");
+        const optionC = document.querySelector("#optionC");
+        const optionD = document.querySelector("#optionD");
+
+        textareaA.addEventListener("input", () => {
+            optionA.value = textareaA.value;
+            optionA.textContent = textareaA.value;
+        });
+        textareaB.addEventListener("input", () => {
+            optionB.value = textareaB.value;
+            optionB.textContent = textareaB.value;
+        });
+        textareaC.addEventListener("input", () => {
+            optionC.value = textareaC.value;
+            optionC.textContent = textareaC.value;
+        });
+        textareaD.addEventListener("input", () => {
+            optionD.value = textareaD.value;
+            optionD.textContent = textareaD.value;
+        });
+        document.querySelector("#correctAnswerSelect").addEventListener("change", () => {
+            document.querySelector("input[name='correctAnswer']").value = document.querySelector("#correctAnswerSelect").value;
+        });
+
+        document.querySelector("#addQuestionForm").addEventListener("submit", addQuestion);
+        function addQuestion(event) {
+            event.preventDefault();
+
+            fetch('/addQuestion', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    question: document.querySelector("textarea[name='Question']").value,
+                    A: document.querySelector("textarea[name='A']").value,
+                    B: document.querySelector("textarea[name='B']").value,
+                    C: document.querySelector("textarea[name='C']").value,
+                    D: document.querySelector("textarea[name='D']").value,
+                    correctAnswer: document.querySelector("input[name='correctAnswer']").value,
+                    weight: document.querySelector("input[name='weight']").value,
+                    quizID: document.querySelector("input[name='quizID']").value,
+                })
+
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result.message);
+
+                    document.querySelector("#question").innerHTML = "";
+                    newdiv = document.createElement("div")
+                    console.log(result.question)
+                    newdiv.innerHTML = `
+                    <div class="card" style="width: 100%;  background-color: #EDEEEC;">
+                        <div class="card-body">
+                        <h4>Question: ${result.question.question}</h3>
+                        <h5>A: ${result.question.A}</h5>
+                        <h5>B: ${result.question.B}</h5>
+                        <h5>C: ${result.question.C}</h5>
+                        <h5>D: ${result.question.D}</h5>
+                        <h5 class="text-success">Correct Answer: ${result.question.correctAnswer}</h5>
+                        <h5>Weight: ${result.question.weight}</h5>
+                            </div>
+                    </div>
+                    <br>
+                `
+                    document.querySelector("#addedQuestion").append(newdiv);
+                })
+
+
+        }
+
+
+
+
+
+
+    })
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+{% endblock %}

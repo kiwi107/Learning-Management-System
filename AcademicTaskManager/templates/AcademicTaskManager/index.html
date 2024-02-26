@@ -1,0 +1,133 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+{% block body %}
+<h1 class="text-center m-2">Announcements</h1>
+<div class="row">
+    {% for announcement in announcements %}
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                {{announcement.classroom.course}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{announcement.title}}</h5>
+                <p class="card-text">{{announcement.content}}</p>
+                <p class="card-text"><small class="text-muted">{{announcement.date}}</small></p>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+<br>
+
+<nav class="d-flex justify-content-center" aria-label="Page navigation example">
+    <ul class="pagination">
+        {% if announcements.has_previous %}
+        <li class="page-item"><a class="page-link" href="?announcement_page={{ announcements.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        {% endif %}
+        {% for i in announcements_page_range %}
+        <li class="page-item"><a class="page-link" href="?announcement_page={{i}}">{{i}}</a></li>
+        {% endfor %}
+
+        {% if announcements.has_next %}
+
+        <li class="page-item"><a class="page-link" href="?announcement_page={{ announcements.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+<hr>
+
+<h1 class="text-center m-2">Assignments</h1>
+<div class="row">
+    {% for assignment in assignments %}
+    <div class="col">
+
+        <div class="card">
+            <div class="card-header">
+                {{assignment.classroom.course}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{assignment.title}}</h5>
+                <p class="card-text">Marks: {{assignment.marks}}</p>
+                <p class="card-text"><small class="text-muted">{{assignment.dueDate}}</small></p>
+            </div>
+        </div>
+
+
+    </div>
+    {% endfor %}
+</div>
+<br>
+
+<nav class="d-flex justify-content-center" aria-label="Page navigation example">
+    <ul class="pagination">
+        {% if assignments.has_previous %}
+        <li class="page-item"><a class="page-link" href="?assignment_page={{ assignments.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        {% endif %}
+        {% for i in assignments_page_range %}
+        <li class="page-item"><a class="page-link" href="?assignment_page={{i}}">{{i}}</a></li>
+        {% endfor %}
+
+        {% if assignments.has_next %}
+
+        <li class="page-item"><a class="page-link" href="?assignment_page={{ assignments.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+<hr>
+
+<h1 class="text-center m-2">Quizzes</h1>
+<div class="row">
+    {% for quiz in quizzes %}
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                {{quiz.classroom.course}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{quiz.title}}</h5>
+                <p class="card-text">Marks: {{quiz.marks}}</p>
+                <p class="card-text"><small class="text-muted">{{quiz.date}}</small></p>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+<br>
+
+<nav class="d-flex justify-content-center" aria-label="Page navigation example">
+    <ul class="pagination">
+        {% if quizzes.has_previous %}
+        <li class="page-item"><a class="page-link" href="?quizzes_page={{ quizzes.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        {% endif %}
+        {% for i in quizzes_page_range %}
+        <li class="page-item"><a class="page-link" href="?quizzes_page={{i}}">{{i}}</a></li>
+        {% endfor %}
+
+        {% if quizzes.has_next %}
+
+        <li class="page-item"><a class="page-link" href="?quizzes_page={{ quizzes.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+<hr>
+
+
+
+
+{% endblock %}

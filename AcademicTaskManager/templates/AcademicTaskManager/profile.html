@@ -1,0 +1,114 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+
+
+{% block body %}
+<h1 class="m-3">Profile</h1>
+{% if user.type == "Student"%}
+<div class="row m-4">
+    <div class="col-md-6 col-xs-12">
+        <h5>Username: {{user.username}}</h5>
+        <h5>Type: {{user.type}}</h5>
+        <h5>Email: {{user.email}}</h5>
+        <h5>Year: {{user.year}}</h5>
+        <h5>Major: {{user.major}}</h5>
+    </div>
+    <div class="col-md-6 col-xs-12">
+        <h5>Total Credit Hours: {{user.major.totalCreditHours}}</h5>
+        <h5>Completed Credit Hours: {{passedCreditHours}}</h5>
+    </div>
+</div>
+<hr>
+<h3>Registered Courses</h3>
+<table class="table table-striped text-center">
+    <thead class="table-dark">
+        <tr>
+            <th scope="col">Course Code</th>
+            <th scope="col">Course Name</th>
+            <th scope="col">Grade</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for course in gradebooks %}
+        {% if course.passed == False %}
+        <tr>
+            <td>{{course.course.code}}</td>
+            <td>{{course.course.name}}</td>
+            <td>{{course.grade}}</td>
+        </tr>
+        {% endif %}
+        {% empty %}
+        <tr>
+            <td colspan="3">No courses registered yet</td>
+
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+<hr>
+<h3>Completed Courses</h3>
+
+<table class="table table-striped text-center">
+    <thead class="table-dark">
+        <tr>
+            <th scope="col">Course Code</th>
+            <th scope="col">Course Name</th>
+            <th scope="col">Grade</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for course in gradebooks %}
+        {% if course.passed == True %}
+        <tr>
+            <td>{{course.course.code}}</td>
+            <td>{{course.course.name}}</td>
+            <td>{{course.grade}}</td>
+        </tr>
+        {% endif %}
+        {% empty %}
+        <tr>
+
+            <td colspan="3">No courses completed yet</td>
+
+        </tr>
+
+
+
+        {% endfor %}
+
+    </tbody>
+    <style>
+        td {
+            width: 33%;
+        }
+
+        th {
+            width: 33%;
+        }
+    </style>
+</table>
+
+{% else %}
+<div class="m-4">
+    <h5>Username: {{user.username}}</h5>
+    <h5>Type: {{user.type}}</h5>
+    <h5>Email: {{user.email}}</h5>
+
+</div>
+<h3 class="m-3">Subjects teached this semester</h3>
+<div class="m-4">
+    {% for course in user.courses.all %}
+    <h5>{{course.code}}: {{course.name}}</h5>
+    {% endfor %}
+</div>
+
+
+
+
+
+{% endif %}
+{% endblock %}

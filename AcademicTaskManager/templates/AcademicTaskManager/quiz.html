@@ -1,0 +1,154 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+
+{% block body %}
+<div class="container">
+    <h3>{{quiz.title}}</h3>
+    <hr>
+    {% if quizSubmission.graded %}
+    <h4>Score: {{quizSubmission.marks}}/{{quiz.marks}}</h4>
+    <hr>
+    <div>
+        {% for question in questions %}
+        {% for questionAns in StudentAnswers %}
+        {% if questionAns.question == question %}
+
+        <div class="row">
+            <div class="col-6">
+                <h4>{{question.question}} </h4>
+            </div>
+            <div class="col-6">
+                <h6>weight: {{question.weight}}</h6>
+            </div>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault1{{question.id}}" value="{{question.A}}" disabled>
+            <label class="form-check-label" for="flexRadioDefault1{{question.id}}">
+                <h5>{{question.A}}</h5>
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault2{{question.id}}" value="{{question.B}}" disabled>
+            <label class="form-check-label" for="flexRadioDefault2{{question.id}}">
+                <h5> {{question.B}}</h5>
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault3{{question.id}}" value="{{question.C}}" disabled>
+            <label class="form-check-label" for="flexRadioDefault3{{question.id}}">
+                <h5>{{question.C}}</h5>
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault4{{question.id}}" value="{{question.D}}" disabled>
+            <label class="form-check-label" for="flexRadioDefault4{{question.id}}">
+                <h5>{{question.D}}</h5>
+            </label>
+        </div>
+        <hr>
+
+        <script>
+            var selectedAnswer = "{{questionAns.selected_answer}}";
+            var radioButtons = document.getElementsByName("flexRadioDefault{{question.id}}");
+
+            for (var i = 0; i < radioButtons.length; i++) {
+                if (radioButtons[i].value === selectedAnswer) {
+                    radioButtons[i].checked = true;
+                }
+            }
+        </script>
+
+        {% if questionAns.selected_answer == question.correctAnswer %}
+        <div class="alert alert-success" role="alert">
+            Correct Answer: {{question.correctAnswer}}
+        </div>
+        {% else %}
+        <div class="alert alert-danger" role="alert">
+            Correct Answer: {{question.correctAnswer}}
+        </div>
+        {% endif %}
+
+        {% endif %}
+
+        {% endfor %}
+        {% endfor %}
+    </div>
+
+
+
+
+
+
+    <!-- not answered -->
+    {% else %}
+    <form method="post" action="{% url 'quizSubmission' id=quiz.id %}">
+        {% csrf_token %}
+
+        {% for question in questions %}
+        <div class="card" style="width: 100%;  background-color: #EDEEEC;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h4>{{question.question}} </h4>
+                    </div>
+                    <div class="col-6">
+                        <h6>weight: {{question.weight}}</h6>
+                    </div>
+                </div>
+
+
+
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault1{{question.id}}" value="{{question.A}}">
+                    <label class="form-check-label" for="flexRadioDefault1{{question.id}}">
+                        <h5>{{question.A}}</h5>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault2{{question.id}}" value="{{question.B}}">
+                    <label class="form-check-label" for="flexRadioDefault2{{question.id}}">
+                        <h5> {{question.B}}</h5>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault3{{question.id}}" value="{{question.C}}">
+                    <label class="form-check-label" for="flexRadioDefault3{{question.id}}">
+                        <h5>{{question.C}}</h5>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault{{question.id}}" id="flexRadioDefault4{{question.id}}" value="{{question.D}}">
+                    <label class="form-check-label" for="flexRadioDefault4{{question.id}}">
+                        <h5>{{question.D}}</h5>
+                    </label>
+                </div>
+
+
+
+            </div>
+        </div>
+        <br>
+
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    {% endif %}
+
+
+
+
+
+</div>
+
+<script>
+
+</script>
+
+
+</script>
+
+</script>
+{% endblock %}

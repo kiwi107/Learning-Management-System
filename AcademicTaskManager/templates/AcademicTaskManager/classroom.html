@@ -1,0 +1,154 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+
+
+{% block body %}
+
+
+
+
+<div class="row">
+    <div class="col-6">
+        <h1 class="m-3">Classrooms</h1>
+    </div>
+    {% if user.type == "Teacher" %}
+
+    <div class="col-6 text-end">
+        <button class="btn btn-success mt-4 me-4" data-bs-toggle="modal" data-bs-target="#exampleModal">Create
+            Classroom</button>
+    </div>
+   {% endif %}
+
+</div>
+<hr>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Create Classroom</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="classroomForm">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <select id="courseSelect" class="form-select" aria-label="Default select example">
+                        <option selected>Subject</option>
+                        {% for course in courses%}
+                        <option value="{{course.name}}">{{course.name}}</option>
+                        {% endfor %}
+
+                    </select>
+                    <input name="course" type="hidden">
+                    <br>
+                    <div id="semesterSelect" class="btn-group" role="group"
+                        aria-label="Basic radio toggle button group">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off"
+                            value="Summer">
+                        <label class="btn btn-outline-dark" for="btnradio1">Summer</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off"
+                            value="Fall">
+                        <label class="btn btn-outline-dark" for="btnradio2">Fall</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off"
+                            value="Spring">
+                        <label class="btn btn-outline-dark" for="btnradio3">Spring</label>
+                    </div>
+                    <input name="semester" type="hidden">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input class="btn btn-success" type="submit" value="Create" data-bs-dismiss="modal">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="classrooms">
+
+    {% for classroom in classrooms %}
+    <a style="text-decoration: none;" href="{% url 'classroomPage' id=classroom.id  %}">
+        <h4 class="m-3">{{classroom.course.code}}: {{classroom.course.name}} {{classroom.semester}} {{classroom.year}}</h4>
+    </a>
+
+    {% endfor %}
+</div>
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        document.querySelector("#courseSelect").addEventListener("change", () => {
+            document.querySelector("input[name='course']").value = document.querySelector("#courseSelect").value;
+            console.log(document.querySelector("input[name='course']").value);
+        });
+        document.querySelector("#semesterSelect").addEventListener("change", () => {
+            document.querySelector("input[name='semester']").value = document.querySelector("input[name='btnradio']:checked").value;
+        });
+
+        document.querySelector("#classroomForm").addEventListener("submit", createClassroom);
+
+        function createClassroom(event) {
+            event.preventDefault();
+
+            fetch('/createClassroom', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    course: document.querySelector("input[name='course']").value,
+                    semester: document.querySelector("input[name='semester']").value,
+                })
+
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result.message);
+                    var classroomUrl = `/classroomPage${result.classroom.id}`;
+                    document.querySelector("#classrooms").innerHTML += `
+     
+                    <a style="text-decoration: none;" href="${classroomUrl}">
+
+
+                        <h4 class="m-3">${result.classroom.courseCode}: ${result.classroom.courseName} ${result.classroom.semester} ${result.classroom.year}</h4>
+                    </a>`
+
+
+
+
+
+
+                })
+
+
+        }
+
+
+    });
+
+
+
+</script>
+{% endblock %}

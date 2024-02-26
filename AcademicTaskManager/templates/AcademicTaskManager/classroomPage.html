@@ -1,0 +1,602 @@
+{% extends "AcademicTaskManager/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="row fixed-header">
+    <div class="col-7">
+        <h2 class="p-3 d-none d-md-block">{{classroom.course.code}}: {{classroom.course.name}} {{classroom.semester}}
+            {{classroom.year}}</h2>
+        <h5 class="p-3 d-block d-md-none">{{classroom.course.code}}: {{classroom.course.name}} {{classroom.semester}}
+            {{classroom.year}}</h5>
+
+    </div>
+    <div class="col-5">
+        {% if request.user.type == "Student" %}
+
+        <h5 class="pt-2 d-none d-md-block">Instructor: {{classroom.teacher.username}}</h5>
+        <a href="{% url 'chat' id=classroom.teacher.id %}" class="btn btn-success btn-md d-none d-md-inline">Chat with instructor</a>
+        <a href="{% url 'gradebook' studentID=request.user.id courseID=classroom.course.id %}" class="btn btn-success btn-md d-none d-md-inline">View Gradebook</a>
+
+        <div class="row mt-1">
+            <div class="col">
+                <a href="{% url 'chat' id=classroom.teacher.id %}" class="btn btn-success btn-sm d-inline d-md-none ">Chat with instructor</a>
+            </div>
+
+        </div>
+        <div class="row mt-2">
+
+            <div class="col">
+                <a href="{% url 'gradebook' studentID=request.user.id courseID=classroom.course.id %}" class="btn btn-success btn-sm d-inline d-md-none">View Gradebook</a>
+            </div>
+
+        </div>
+
+
+
+        {% endif %}
+    </div>
+
+</div>
+<hr>
+
+<div class="row">
+    <div class="col-2 d-md-block d-none">
+        <div id="list-example" class="list-group fixed-list">
+            <a class="list-group-item list-group-item-action" href="#list-item-1">Announcements</a>
+            <a class="list-group-item list-group-item-action" href="#list-item-2">Assignments</a>
+            <a class="list-group-item list-group-item-action" href="#list-item-3">Quizzes</a>
+            <a class="list-group-item list-group-item-action" href="#list-item-4">Students</a>
+        </div>
+    </div>
+    <h6 class="pb-3 d-block d-md-none">Instructor: {{classroom.teacher.username}}</h6>
+
+    <div class="col-md-9 col-xs-12 px-4">
+        <div data-bs-spy="scroll" data-bs-target="#list-example" data-bs-smooth-scroll="true" class="scrollspy-example" tabindex="0">
+            <!-- Announcements -->
+            <div class="row no-gutters">
+                <div class="col-6 text-start">
+                    <h5 class="header" id="list-item-1" data-bs-toggle="collapse" href="#collapseAnnouncements" role="button" aria-expanded="false" aria-controls="collapseExample">Announcements <i class="fa fa-solid fa-chevron-up fa-sm"></i></h5>
+                </div>
+                {% if request.user.username == classroom.teacher.username %}
+                <div class="col-6 text-end">
+                    <button class="btn btn-success btn-md d-none d-md-inline" data-bs-toggle="modal" data-bs-target="#announcementModal">Create
+                        Announcement</button>
+                    <button class="btn btn-success btn-sm d-inline d-md-none" data-bs-toggle="modal" data-bs-target="#announcementModal">Create
+                        Announcement</button>
+                </div>
+                {% endif %}
+            </div>
+            <hr>
+            <!-- create announcement modal -->
+            <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Create Announcement</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="announcementForm">
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <input class="form-control" autofocus type="text" name="AnnounTitle" placeholder="Title">
+                                <br>
+                                <textarea class="form-control" name="AnnounContent" placeholder="Content"></textarea>
+                                <input name="classroomID" type="hidden" value="{{classroom.id}}">
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <input class="btn btn-success" type="submit" value="Create" data-bs-dismiss="modal">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="collapseAnnouncements" class="collapse show">
+                {% for announcement in announcements%}
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 text-start">
+                                <h5 class="card-title">{{announcement.title}}</h5>
+
+                            </div>
+                            <div class="col-6 text-end">
+                                <h6 class="card-subtitle mb-2 text-muted">{{announcement.date}}</h6>
+                            </div>
+                        </div>
+                        <p class="card-text">{{announcement.content}}</p>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <br>
+
+            <!-- assignments -->
+            <div class="row">
+                <div class="col-6 text-start">
+                    <h5 class="header" id="list-item-2" data-bs-toggle="collapse" href="#collapseAssignments" role="button" aria-expanded="false" aria-controls="collapseExample">Assignments <i class="fa fa-solid fa-chevron-up fa-sm"></i></h5>
+                </div>
+                {% if request.user.username == classroom.teacher.username %}
+                <div class="col-6 text-end">
+                    <button class="btn btn-success btn-md d-none d-md-inline" data-bs-toggle="modal" data-bs-target="#AssignmentModal">Create
+                        Assignment</button>
+                    <button class="btn btn-success btn-sm d-inline d-md-none" data-bs-toggle="modal" data-bs-target="#AssignmentModal">Create
+                        Assignment</button>
+                </div>
+                {% endif %}
+            </div>
+            <hr>
+            <!-- create assignment modal -->
+            <div class="modal fade" id="AssignmentModal" tabindex="-1" aria-labelledby="AssignmentModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="AssignmentModalLabel">Create Assignments</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="assignmentForm">
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <input class="form-control" autofocus type="text" name="AssignmentTitle" placeholder="Title">
+                                <br>
+                                <input class="form-control" type="number" name="AssignmentMarks" placeholder="Marks">
+                                <br>
+                                <input type="datetime-local" class="form-control" name="AssignmentDueDate">
+
+                                <input name="classroomID" type="hidden" value="{{classroom.id}}">
+
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <input class="btn btn-success" type="submit" value="Create" data-bs-dismiss="modal">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="collapseAssignments" class="collapse show">
+                {% for assignment in assignments %}
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-8 text-start">
+                                <h5 class="card-title">{{assignment.title}}</h5>
+
+                            </div>
+                            <div class="col-4 text-end">
+                                <h6 class="card-subtitle mb-2 text-muted">due: {{assignment.dueDate}}</h6>
+                            </div>
+                        </div>
+                        <p class="card-text">Marks: {{assignment.marks}}</p>
+                        {% if request.user.username == classroom.teacher.username %}
+                        <p class="d-inline-flex gap-1">
+                            <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample{{assignment.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                view submissions
+                            </a>
+                        </p>
+                        <div class="collapse" id="collapseExample{{assignment.id}}">
+                            <div class="card card-body">
+                                {% for submission in assignmentSubmission %}
+                                {% if submission.assignment.id == assignment.id %}
+                                <a href="{% url 'assignmentSubmission' id=submission.id %}">{{submission.student.username}}</a>
+                                {% endif %}
+                                {% endfor %}
+
+
+                            </div>
+                        </div>
+                        {% endif %}
+
+
+
+
+
+                        {% if request.user.type == "Student" %}
+
+                        {% if assignment not in studentAssignments  %}
+
+                        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#SubmitAssignmentModal{{assignment.id}}">submit</button>
+                        {% endif %}
+
+
+
+
+                        {% for submission in assignmentSubmission %}
+                        {% if submission.assignment.id == assignment.id and submission.student.username == request.user.username %}
+
+                        {% if submission.graded %}
+                        <p class="text-success">graded</p>
+                        {% else %}
+                        <p class="text-danger">not graded</p>
+                        {% endif %}
+
+                        {%  if submission.late %}
+                        <p class="text-danger">late submission</p>
+                        {% endif %}
+
+                        <a href="{% url 'assignmentSubmission' id=submission.id %}">View Submission</a>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+
+                        <!-- modal -->
+                        <div class="modal fade" id="SubmitAssignmentModal{{assignment.id}}" tabindex="-1" aria-labelledby="SubmitAssignmentModalLabel{{assignment.id}}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="SubmitAssignmentModalLabel{{assignment.id}}">Submit
+                                            Assignment</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <!-- submitAssignmentForm -->
+                                    <form class="submitAssignmentForm">
+                                        <div class="modal-body">
+                                            {% csrf_token %}
+                                            <input type="file" class="form-control-file" id="fileInput" name="file" accept=".pdf">
+
+                                            <input name="assignmentID" type="hidden" value="{{assignment.id}}">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                                            <input class="btn btn-success" type="submit" value="Submit" data-bs-dismiss="modal">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <br>
+
+            <!-- quizzes -->
+            <div class="row">
+                <div class="col-6 text-start">
+                    <h5 class="header" id="list-item-3" data-bs-toggle="collapse" href="#collapseQuizzes" role="button" aria-expanded="false" aria-controls="collapseExample">Quizzes <i class="fa fa-solid fa-chevron-up fa-sm"></i></h5>
+                </div>
+                {% if request.user.username == classroom.teacher.username %}
+                <div class="col-6 text-end">
+
+                    <button class="btn btn-success btn-md d-none d-md-inline" data-bs-toggle="modal" data-bs-target="#QuizModal">Create
+                        Quiz</button>
+                    <button class="btn btn-success btn-sm d-inline d-md-none" data-bs-toggle="modal" data-bs-target="#QuizModal">Create
+                        Quiz</button>
+
+                </div>
+                {% endif %}
+            </div>
+            <hr>
+            <!-- create quiz modal -->
+            <div class="modal fade" id="QuizModal" tabindex="-1" aria-labelledby="QuizModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="QuizModalLabel">Create Quiz</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="{% url 'createQuiz' %}" method="POST">
+
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <input name="quizTitle" class="form-control" autofocus type="text" placeholder="Title">
+                                <br>
+                                <input name="quizDate" class="form-control" type="datetime-local" placeholder="Date">
+
+                                <input name="classroomID" type="hidden" value="{{classroom.id}}">
+                                <input name="classroomCourseID" type="hidden" value="{{classroom.course.id}}">
+
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <input class="btn btn-success" type="submit" value="Create" data-bs-dismiss="modal">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="collapseQuizzes" class="collapse show">
+                {% for quiz in quizzes %}
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-8 text-start">
+                                <h5 class="card-title">{{quiz.title}}</h5>
+                            </div>
+                            <div class="col-4 text-end">
+                                <h6 class="card-subtitle mb-2 text-muted">{{quiz.date}}</h6>
+                               
+                               
+                            </div>
+                        </div>
+                        <p class="card-text">Marks: {{quiz.marks}}</p>
+                        {% if request.user.type == "Student" %}
+
+                        {% if loggedinuser in quiz.answeredBy.all %}
+                        <a href="{% url 'quiz' id=quiz.id studentID=request.user.id %}" class="btn btn-primary">View Quiz</a>
+                        {% else %}
+                        {% if quiz.date|date:"M. d, Y, g:i a" <= currentTime|date:"M. d, Y, g:i a" %}
+                        
+                        <a href="{% url 'quiz' id=quiz.id studentID=request.user.id %}" class="btn btn-primary">Start Quiz</a>
+                        {% else %}
+                        <p class="text-danger">Quiz not available yet</p>
+                        {% endif %}
+
+
+                        {% endif %}
+                        {% endif %}
+
+                        {% if request.user.username == classroom.teacher.username %}
+                        <p class="d-inline-flex gap-1">
+                            <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseQuiz{{quiz.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                view submissions
+                            </a>
+                        </p>
+                        <div class="collapse" id="collapseQuiz{{quiz.id}}">
+                            <div class="card card-body">
+                                {% for submission in quizSubmissions %}
+                                {% if submission.quiz.id == quiz.id %}
+                                <a href="{% url 'quiz' id=submission.quiz.id studentID=submission.student.id %}">{{submission.student.username}}</a>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+
+
+
+
+
+
+
+
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+
+            <br>
+
+
+
+
+
+            <div class="row">
+                <div class="col-6 text-start">
+                    <h5 class="header" id="list-item-4" data-bs-toggle="collapse" href="#collapseStudents" role="button" aria-expanded="false" aria-controls="collapseExample">Students <i class="fa fa-solid fa-chevron-up fa-sm"></i></h5>
+                </div>
+            </div>
+            <hr>
+            <div id="collapseStudents" class="collapse show">
+                {% for student in classroom.students.all %}
+                <h5>{{student.username}}</h5>
+                {% if request.user.username == classroom.teacher.username %}
+                <a href="{% url 'teacherChat' id=student.id %}" class="btn btn-success">Chat</a>
+                <a href="{% url 'gradebook' studentID=student.id courseID=classroom.course.id %}" class="btn btn-success">View Gradebook</a>
+                {% endif %}
+                <br>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .list-group-item {
+        border-radius: 0px !important;
+        border: none !important;
+    }
+
+    .fixed-list {
+        position: sticky;
+        top: 70px;
+
+
+
+    }
+
+    .fixed-header {
+        position: sticky;
+        top: 0;
+
+        background-color: #fff;
+
+        z-index: 100;
+
+    }
+
+    /* CSS to rotate the icon */
+    .rotate-icon {
+        transform: rotate(0deg);
+        transition: transform 0.3s ease;
+        /* Add smooth transition for rotation */
+    }
+</style>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+
+
+
+        const headers = document.querySelectorAll(".header");
+
+
+        const isRotated = new Array(headers.length).fill(false);
+
+        headers.forEach((header, index) => {
+            header.addEventListener("click", (event) => {
+                isRotated[index] = !isRotated[index];
+
+                const chevronIcon = header.querySelector(".fa-chevron-up");
+
+                if (isRotated[index]) {
+                    chevronIcon.style.transform = "rotate(180deg)";
+                } else {
+                    chevronIcon.style.transform = "rotate(0deg)";
+                }
+            });
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+        document.querySelector("#announcementForm").addEventListener("submit", createAnnouncement);
+
+        function createAnnouncement(event) {
+            event.preventDefault();
+
+            fetch('/createAnnouncement', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    title: document.querySelector("input[name='AnnounTitle']").value,
+                    content: document.querySelector("textarea[name='AnnounContent']").value,
+                    classroomID: document.querySelector("input[name='classroomID']").value,
+
+                })
+
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result.message);
+                    console.log(result.announcement);
+                    //append the announcement
+                    let div = document.createElement('div');
+
+                    div.innerHTML = `
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 text-start">
+                                <h5 class="card-title">${result.announcement.title}</h5>
+
+                            </div>
+                            <div class="col-6 text-end">
+                                <h6 class="card-subtitle mb-2 text-muted">${result.announcement.date}</h6>
+                            </div>
+                        </div>
+                        <p class="card-text">${result.announcement.content}</p>
+
+                    </div>
+                </div>`
+                    document.querySelector("#collapseAnnouncements").prepend(div);
+                    document.querySelector("#announcementForm").reset();
+
+
+                })
+        }
+
+        document.querySelector("#assignmentForm").addEventListener("submit", createAssignment);
+
+        function createAssignment(event) {
+            event.preventDefault();
+
+            fetch('/createAssignment', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    title: document.querySelector("input[name='AssignmentTitle']").value,
+                    marks: document.querySelector("input[name='AssignmentMarks']").value,
+                    dueDate: document.querySelector("input[name='AssignmentDueDate']").value,
+                    classroomID: document.querySelector("input[name='classroomID']").value,
+                })
+
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result.message);
+                    console.log(result.assignment);
+                    location.reload();
+
+
+
+                })
+        }
+
+        document.querySelectorAll(".submitAssignmentForm").forEach(form => {
+            form.addEventListener("submit", submitAssignment);
+        });
+
+
+        function submitAssignment(event) {
+            console.log("submitAssignment");
+            event.preventDefault();
+            const formData = new FormData();
+            const fileField = event.target.parentElement.querySelector('input[type="file"]');
+
+            formData.append('file', fileField.files[0]);
+            formData.append('assignmentID', event.target.parentElement.querySelector("input[name='assignmentID']").value);
+
+            fetch('/submitAssignment', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: formData
+
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result.message);
+                    //reload
+                    location.reload();
+
+
+
+                })
+        }
+
+
+
+
+
+
+    });
+
+
+</script>
+
+
+
+
+{% endblock %}
